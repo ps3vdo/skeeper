@@ -4,12 +4,12 @@ const apiError = require('../error/apiError')
 
 function validate(oneString, twoString) {
     const tokenWithOut = oneString + "." + twoString;
-    return crypto.createHmac('sha256', config.SECRET)
+    return crypto.createHmac('sha256', config.SECRET_REFRESH)
         .update(tokenWithOut).digest('hex');
 
 }
 
-const generateToken = (id, email) => {
+const generateRefreshToken = (id, email) => {
     const header = {
         "alg": "HS256",
         "typ": "JWT"
@@ -17,15 +17,15 @@ const generateToken = (id, email) => {
     const payload = {
         id,
         email,
-        expires_at: Date.now() + 60 * 60 * 1000
+        expires_at: Date.now() + 24 * 60 * 60 * 1000
     }
     const oneString = Buffer.from(JSON.stringify(header)).toString("base64");
     const twoString = Buffer.from(JSON.stringify(payload)).toString("base64");
     const treeString = validate(oneString, twoString);
     return oneString + "." + twoString + "." + treeString;
 }
-const verify = function (token) {
-    token = token.split(' ')[1];
+const verify = function (refreshToken) {
+    token = refreshToken.split(' ')[1];
     const [oneString, twoString, verify] = token.split('.');
     const decryptString = Buffer.from(twoString, "base64").toString()
     const decoded = JSON.parse(decryptString);
@@ -35,4 +35,4 @@ const verify = function (token) {
     return decoded;
 }
 
-module.exports = {generateToken,verify};
+module.exports = {generateRefreshToken, verify};
