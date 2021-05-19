@@ -1,6 +1,6 @@
-const db = require('db');
+const db = require('./db');
 
-class notesService {
+class notesServices {
 	async create(title, text, id_space, id_owner, label, tags) {
 		const currentDate = new Date();
 		db.query('INSERT INTO notes (title, text, id_space, id_owner, label, tags, created_at, updated_at) VALUES $1, $2, $3, $4, $5, $6, $7, $7',
@@ -27,4 +27,4 @@ class notesService {
 	}
 }
 
-module.exports = new notesService()
+module.exports = new notesServices()

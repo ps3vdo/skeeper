@@ -24,8 +24,8 @@ const generateRefreshToken = (id, email) => {
     const treeString = validate(oneString, twoString);
     return oneString + "." + twoString + "." + treeString;
 }
-const verify = function (refreshToken) {
-    token = refreshToken.split(' ')[1];
+const verifyRefreshToken = function (token) {
+    token = token.split(' ')[1];
     const [oneString, twoString, verify] = token.split('.');
     const decryptString = Buffer.from(twoString, "base64").toString()
     const decoded = JSON.parse(decryptString);
@@ -35,4 +35,4 @@ const verify = function (refreshToken) {
     return decoded;
 }
 
-module.exports = {generateRefreshToken, verify};
+module.exports = {generateRefreshToken, verifyRefreshToken};

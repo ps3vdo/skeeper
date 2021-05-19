@@ -7,7 +7,7 @@ const app = express();
 const port = config.APP_PORT;
 
 app.use(express.json());
-app.use("/api", routes);
+app.use("/", routes);
 
 app.use('/', errorMiddleware);
 

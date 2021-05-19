@@ -24,8 +24,8 @@ const generateAccessToken = function(id, email) {
     const treeString = validate(oneString, twoString);
     return oneString + "." + twoString + "." + treeString;
 }
-const verifyAccessToken = (accessToken) {
-    token = accessToken.split(' ')[1];
+const verifyAccessToken = function(token) {
+    token = token.split(' ')[1];
     const [oneString, twoString, verify] = token.split('.');
     const decryptString = Buffer.from(twoString, "base64").toString()
     const decoded = JSON.parse(decryptString);
