@@ -8,4 +8,4 @@ router.post('/notes', notesController.createNote);
 router.put('/notes', notesController.updateNote);
 router.delete('/notes/:id', notesController.updateNote);
 
-module.exports = router
+module.exports = router;

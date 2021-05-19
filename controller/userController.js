@@ -1,29 +1,32 @@
 const apiError = require("../error/apiError");
 const crypto = require('crypto');
-const db = require("../db");
+const db = require("../db/db");
 const hashingPassword = require('../function/hashingPasssword');
-const jwt = require('../function/jwt')
+const jwt = require('../function/jwt');
+const {UsersServices, SpacesServices} = require('../db/index');
 
 class UserController {
     async userCreate (req, res, next) {
         try {
-            const {name, email, password} = req.body;
+            const {email, password, firstName, lastName} = req.body;
 
-            const correctPassword = password.match(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
-            if (!correctPassword) return next(apiError.badRequest("Password must contain A-Z,a-z,0-9,!@#$%^&*"));
+            const correctPassword = password
+                .match(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
+            if (!correctPassword) return next(apiError
+                .badRequest("Password must contain A-Z,a-z,0-9,!@#$%^&*"));
 
-            const correctEmail = email.match(/^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/g);
+            const correctEmail = email
+                .match(/^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/g);
             if (!correctEmail) return next(apiError.badRequest("incorrect email"));
 
-            const duplicateEmail = await db.query('SELECT FROM users where email = $1', [email]);
-            if (duplicateEmail.rowCount)   return next(apiError.badRequest('Email registered'));
+            const duplicateEmail = await UsersServices.validate(email);
+            if (duplicateEmail)   return next(apiError.badRequest('Email registered'));
 
             const salt = crypto.randomBytes(20).toString('hex');
             const hashPassword = hashingPassword(password, salt);
-            const user = (await db.query('INSERT INTO users (name, email, hash_password, salt) values ($1, $2, $3, $4) RETURNING id, email',
-                [name, email, hashPassword, salt])).rows[0];
-            const title = "new spaces";
-            await db.query('INSERT INTO spaces (title, id_owner) values($1, $2)',[title, user.id]);
+            const user = await UsersServices.create(email, hashPassword, salt, firstName, lastName);
+            const spacesCreatedStatus = SpacesServices.create(user.id);
+            console.log(spacesCreatedStatus)
             res.json(user); // Возвращает id, email
         } catch (e) {
             console.log(e);
