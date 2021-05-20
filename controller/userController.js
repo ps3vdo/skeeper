@@ -70,13 +70,13 @@ class UserController {
 
             const validateEmail = await UsersServices.validate(email);
             if (!validateEmail) {
-                return next(apiError.badRequest('Email or password is bad'));
+                return next(apiError.badRequest('Invalid email or password'));
             }
 
             const { salt, hash_password, id } = UsersServices.validate(email);
 
             if (hashingPassword(password, salt) !== hash_password) {
-                return next(apiError.badRequest('Email or password is bad'));
+                return next(apiError.badRequest('Invalid email or password'));
             }
             const tokenAccess = jwtAccess.generateAccessToken(id, email);
             const tokenRefresh = jwtRefresh.generateRefreshToken(id, email);
@@ -100,6 +100,7 @@ class UserController {
                 const id = req.params.id;
                 console.log(id)
                 const user = UsersServices.delete(id);
+                const space = SpacesServices.delete(id)
                 res.json(user.rows[0]);
             } catch (e) {
                 console.log(e);
