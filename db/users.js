@@ -41,7 +41,7 @@ class UsersServices {
 
     }
     async delete(id) {
-        return await db.query('DELETE FROM owner where id = $1', [id]);
+        return await db.query('DELETE FROM users where id = $1', [id]);
     }
 }
 

@@ -4,7 +4,7 @@ const db = require("../db/db");
 const hashingPassword = require('../function/hashingPassword');
 const jwtAccess = require('../function/tokenAccess');
 const jwtRefresh = require('../function/tokenRefresh')
-const {UsersServices, SpacesServices} = require('../db/index');
+const {UsersServices, SpacesServices, NotesServices} = require('../db/index');
 
 class UserController {
     async userCreate (req, res, next) {
@@ -99,9 +99,10 @@ class UserController {
             try {
                 const id = req.params.id;
                 console.log(id)
-                const user = UsersServices.delete(id);
-                const space = SpacesServices.delete(id)
-                res.json(user.rows[0]);
+                await UsersServices.delete(id);
+                await SpacesServices.delete(id);
+                await NotesServices.deleteNoteOfUser(id);
+                res.json("Successfully");
             } catch (e) {
                 console.log(e);
                 return next(apiError.badRequest(e.message));

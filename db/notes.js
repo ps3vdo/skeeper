@@ -25,6 +25,11 @@ class notesServices {
 			[id]);
 		return 'Note deleted'
 	}
+	async deleteNoteOfUser(id) {
+	await db.query('DELETE FROM notes WHERE id_owner = $1',
+	[id]);
+	return 'Note deleted'
+}
 }
 
 module.exports = new notesServices()

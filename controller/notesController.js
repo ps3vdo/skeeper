@@ -25,6 +25,11 @@ class notesController {
 		const status = await notesService.deleteNote(id);
 		res.json(status);
 	}
+	async deleteNoteOfUser(req, res) {
+		const {id} = req.params.id;
+		const status = await notesService.deleteNote(id);
+		res.json(status);
+	}
 }
 
 module.exports = new notesController();
