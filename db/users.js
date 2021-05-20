@@ -40,6 +40,9 @@ class UsersServices {
             [first_name, last_name, email,  this.currentDate, id]);
 
     }
+    async delete(id) {
+        return await db.query('DELETE FROM owner where id = $1', [id]);
+    }
 }
 
 module.exports = new UsersServices();

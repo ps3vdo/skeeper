@@ -99,7 +99,7 @@ class UserController {
             try {
                 const id = req.params.id;
                 console.log(id)
-                const user = await db.query('DELETE FROM owner where id = $1', [id]);
+                const user = UsersServices.delete(id);
                 res.json(user.rows[0]);
             } catch (e) {
                 console.log(e);
