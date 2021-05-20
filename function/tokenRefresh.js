@@ -17,7 +17,7 @@ const generateRefreshToken = (id, email) => {
     const payload = {
         id,
         email,
-        expires_at: Date.now() + 24 * 60 * 60 * 1000
+        expires_at: Date.now() + 30 * 24 * 60 * 60 * 1000
     }
     const oneString = Buffer.from(JSON.stringify(header)).toString("base64");
     const twoString = Buffer.from(JSON.stringify(payload)).toString("base64");

@@ -37,6 +37,33 @@ class UserController {
             return next(apiError.badRequest(e.message));
         }
     }
+    async getOneUser(req, res, next) {
+        try {
+            const id = req.params.id;
+            const user = await UsersServices.getUser(id);
+
+            if(!user.rowCount) res.json("User is not registered");
+
+            res.json(user.rows[0]);
+
+        } catch (e) {
+            console.log(e);
+            return next(apiError.badRequest(e.message));
+        }
+    }
+    async getUsers(req, res, next) {
+        try {
+            let {limit, page} = req.query;
+            page = page || 1;
+            limit = limit || 5;
+            let offset = page * limit - limit;
+            const users = await UsersServices.getUsers(limit, offset);
+            res.json(users.rows)
+        } catch (e) {
+            console.log(e.message);
+            return next(apiError.badRequest(e.message))
+        }
+    }
     async userAuthorization(req, res, next){
         try {
             const { email, password } = req.body;
@@ -59,7 +86,7 @@ class UserController {
             return next(apiError.badRequest(e.message));
         }
     }
-        async userTokenRefresh(req, res, next) {
+        async userTokenRefresh(req, res) {
             let tokenRefresh =  req.headers.authorization; //не уверен в правильности получения
             const user = jwtRefresh.verifyRefreshToken(tokenRefresh); //TODO rework
             const tokenAccess = jwtAccess.generateAccessToken(user.id, user.email);
@@ -81,10 +108,8 @@ class UserController {
         }
     async userUpdate(req, res, next) {
         try {
-            const { name, email, id } = req.body;
-            const user = await db.query(
-                'UPDATE owner set name = $1, email = $2 where id = $3 RETURNING *',
-                [name, email, id]);
+            const { first_name, last_name, email, id } = req.body;
+            const user = await UsersServices.update(first_name, last_name, email, id);
             res.json(user.rows[0]);
         } catch (e) {
             console.log(e);
