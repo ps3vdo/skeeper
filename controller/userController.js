@@ -1,10 +1,10 @@
-const apiError = require("../error/apiError");
+const ApiError = require("../error/ApiError");
 const crypto = require('crypto');
 const db = require("../db/db");
 const hashingPassword = require('../function/hashingPassword');
 const jwtAccess = require('../function/tokenAccess');
 const jwtRefresh = require('../function/tokenRefresh')
-const {UsersServices, SpacesServices, NotesServices} = require('../db/index');
+const {UsersServices, SpacesServices, NotesServices, LinksServices} = require('../db/index');
 
 class UserController {
     async userCreate (req, res, next) {
@@ -13,16 +13,16 @@ class UserController {
 
             const correctPassword = password
                 .match(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
-            if (!correctPassword) return next(apiError
+            if (!correctPassword) return next(ApiError
                 .badRequest("Password must contain A-Z,a-z,0-9,!@#$%^&*"));
 
             const correctEmail = email
                 .match(/^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/g);
-            if (!correctEmail) return next(apiError.badRequest("incorrect email"));//TODO заменить !
+            if (!correctEmail) return next(ApiError.badRequest("incorrect email"));//TODO заменить !
 
             const duplicateEmail = await UsersServices.validate(email);
-            console.log(duplicateEmail, 1)
-            if (duplicateEmail.rowCount)   return next(apiError.badRequest('Email registered'));
+            console.log(duplicateEmail)
+            if (duplicateEmail.rowCount)   return next(ApiError.badRequest('Email registered'));
 
             const salt = crypto.randomBytes(20).toString('hex');
             const hashPassword = hashingPassword(password, salt);
@@ -34,7 +34,7 @@ class UserController {
             res.json({ tokenAccess, tokenRefresh, user }); // Возвращает id, email
         } catch (e) {
             console.log(e);
-            return next(apiError.badRequest(e.message));
+            return next(ApiError.badRequest(e.message));
         }
     }
     async getOneUser(req, res, next) {
@@ -48,7 +48,7 @@ class UserController {
 
         } catch (e) {
             console.log(e);
-            return next(apiError.badRequest(e.message));
+            return next(ApiError.badRequest(e.message));
         }
     }
     async getUsers(req, res, next) {
@@ -61,7 +61,7 @@ class UserController {
             res.json(users.rows)
         } catch (e) {
             console.log(e.message);
-            return next(apiError.badRequest(e.message))
+            return next(ApiError.badRequest(e.message))
         }
     }
     async userAuthorization(req, res, next){
@@ -70,20 +70,20 @@ class UserController {
 
             const validateEmail = await UsersServices.validate(email);
             if (!validateEmail) {
-                return next(apiError.badRequest('Invalid email or password'));
+                return next(ApiError.badRequest('Invalid email or password'));
             }
 
             const { salt, hash_password, id } = UsersServices.validate(email);
 
             if (hashingPassword(password, salt) !== hash_password) {
-                return next(apiError.badRequest('Invalid email or password'));
+                return next(ApiError.badRequest('Invalid email or password'));
             }
             const tokenAccess = jwtAccess.generateAccessToken(id, email);
             const tokenRefresh = jwtRefresh.generateRefreshToken(id, email);
             return res.json({ tokenAccess, tokenRefresh });
         } catch (e) {
             console.log(e)
-            return next(apiError.badRequest(e.message));
+            return next(ApiError.badRequest(e.message));
         }
     }
         async userTokenRefresh(req, res) {
@@ -102,10 +102,11 @@ class UserController {
                 await UsersServices.delete(id);
                 await SpacesServices.delete(id);
                 await NotesServices.deleteNoteOfUser(id);
+                await LinksServices.deleteAllNotesOfUser(id);
                 res.json("Successfully");
             } catch (e) {
                 console.log(e);
-                return next(apiError.badRequest(e.message));
+                return next(ApiError.badRequest(e.message));
             }
         }
     async userUpdate(req, res, next) {
@@ -115,7 +116,7 @@ class UserController {
             res.json(user.rows[0]);
         } catch (e) {
             console.log(e);
-            return next(apiError.badRequest(e.message));
+            return next(ApiError.badRequest(e.message));
         }
     }
     }

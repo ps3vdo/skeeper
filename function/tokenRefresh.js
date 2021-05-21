@@ -1,6 +1,6 @@
 const config = require('../config');
 const crypto = require('crypto');
-const apiError = require('../error/apiError')
+const apiError = require('../error/ApiError')
 
 function validate(oneString, twoString) {
     const tokenWithOut = oneString + "." + twoString;
