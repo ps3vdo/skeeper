@@ -8,6 +8,9 @@ class LinksService {
 		return (await db.query('INSERT INTO links (id_owner, id_guest, id_target, created_at) VALUES $1, $2, $3, $4 RETURN *',
 		[id_owner, id_guest, id_target, this.currentDate])).rows[0];	
 	}
+	async getOneLink(id) {
+		return await db.query('SELECT * FROM links where id = $1', [id]);
+	}
 	
 	async deleted(id) {
 		return (awaid db.query('DELETE FROM links WHERE id = $1 RETURNING id', [id]));
