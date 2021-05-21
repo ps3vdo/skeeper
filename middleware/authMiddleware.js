@@ -10,10 +10,7 @@ function authorization(req, res, next) {
 	next();		
 	} catch(e) {
 		console.log(e.message);
-		res.json(ApiError.forbidden("Not authorization"));
-		
+		res.json(ApiError.forbidden("Not authorization"));	
 	}
-	
-	
-	
 }
+module.exports = authorization;
