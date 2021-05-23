@@ -1,11 +1,11 @@
-const NotesServices = require('./notes');
-const SpacesServices = require('./spaces');
-const UsersServices = require('./users');
-const LinksServices = require('./links');
+const notesServices = require('./notesServices');
+const spacesServices = require('./spacesServices');
+const usersServices = require('./usersServices');
+const linksServices = require('./linksServices');
 
 module.exports = {
-    NotesServices,
-    SpacesServices,
-    UsersServices,
-    LinksServices
+    notesServices,
+    spacesServices,
+    usersServices,
+    linksServices
 }
