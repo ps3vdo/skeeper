@@ -3,9 +3,10 @@ const notesController = require('../controller/notesController');
 
 const router = Router();
 
-router.get('/notes', notesController.getAllOwnerNotes);
+router.get('/notes', notesController.getAll);
+router.get('/notes_users/', notesController.getAllUserNotes);
 router.post('/notes', notesController.createNote);
-router.put('/notes', notesController.updateNote);
+router.patch('/notes', notesController.updateNote);
 router.delete('/notes/:id', notesController.deleteNote);
 
 module.exports = router;
