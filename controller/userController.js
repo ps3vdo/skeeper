@@ -31,6 +31,7 @@ class UserController {
             await spacesServices.create(user.id);
             const tokenAccess = jwtAccess.generateAccessToken(user.id, email);
             const tokenRefresh = jwtRefresh.generateRefreshToken(user.id, email);
+			await addToken(tokenRefresh);
             res.json({ tokenAccess, tokenRefresh });
         } catch (e) {
             return next(ApiError.badRequest(e.message));

@@ -12,7 +12,6 @@ function create(title = 'new spaces', id_owner, description) {
 }
 function getUserSpace(id_owner) {
     try {
-        console.log(id_owner)
         return db.query('SELECT * FROM spaces where id_owner = $1',[id_owner]);
     } catch (e) {
         return e.message
@@ -20,8 +19,14 @@ function getUserSpace(id_owner) {
 }
 function getSpace(id) {
     try {
-        console.log(id)
         return db.query('SELECT * FROM spaces where id = $1',[id]);
+    } catch (e) {
+        return e.message
+    }
+}
+function getGuestSpace(id_target) {
+    try {
+        return db.query('SELECT * FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1',[id_guest]);
     } catch (e) {
         return e.message
     }

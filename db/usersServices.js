@@ -1,5 +1,6 @@
 const db = require('./db');
-const apiError = require('../error/ApiError')
+const apiError = require('../error/ApiError');
+
 
 
     const currentDate = new Date();

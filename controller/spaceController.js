@@ -1,6 +1,7 @@
 const {spacesServices} = require('../db/index');
 const ApiError = require('../error/ApiError');
 
+
 async function createSpace (req, res, next) {
     try {
         const {id_owner, title, description} = req.body;
@@ -11,11 +12,44 @@ async function createSpace (req, res, next) {
         return next(ApiError.badRequest(e.message));
     }
 }
+
+async function getSpace (req, res, next) {
+    try {
+        const id = req.body;
+        const space = await spacesServices.getSpace(id);
+        res.json(space.rows[0]);
+    } catch (e) {
+        console.log(e.message);
+        return next(ApiError.badRequest(e.message));
+    }
+}
+
+
+async function getOneSpace (req, res, next) {
+    try {
+        const id = req.params.id;
+        const space = await spacesServices.getSpace(id);
+        res.json(space.rows[0]);
+    } catch (e) {
+        console.log(e.message);
+        return next(ApiError.badRequest(e.message));
+    }
+}
 async function getUserSpace (req, res, next) {
     try {
         const id = req.params.id;
         const space = await spacesServices.getUserSpace(id);
-        res.json(space);
+        res.json(space.rows);
+    } catch (e) {
+        console.log(e.message);
+        return next(ApiError.badRequest(e.message));
+    }
+}
+async function getUserSpace (req, res, next) {
+    try {
+        const {id} = req.body;
+        const space = await spacesServices.getGuestSpace(id);
+        res.json(space.rows);
     } catch (e) {
         console.log(e.message);
         return next(ApiError.badRequest(e.message));
