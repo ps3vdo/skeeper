@@ -1,9 +1,13 @@
-const NotesServices = require('./notes');
-const SpacesServices = require('./spaces');
-const UsersServices = require('./users')
+const notesServices = require('./notesServices');
+const spacesServices = require('./spacesServices');
+const usersServices = require('./usersServices');
+const linksServices = require('./linksServices');
+const linksServices = require('./tokenServices');
 
 module.exports = {
-    NotesServices,
-    SpacesServices,
-    UsersServices
+    notesServices,
+    spacesServices,
+    usersServices,
+    linksServices,
+	tokenServices
 }

@@ -7,10 +7,10 @@ const app = express();
 const port = config.APP_PORT;
 
 app.use(express.json());
-app.use("/", routes);
+app.use("/api", routes);
 
 app.use('/', errorMiddleware);
 
 app.listen(port, function (){
-    console.log("Server started on port:", port)
+    console.log("Server started on port:", port);//убить процесс использующий порт: fuser -k 5000/tcp
 })
