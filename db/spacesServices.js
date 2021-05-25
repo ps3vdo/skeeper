@@ -26,7 +26,7 @@ function getSpace(id) {
 }
 function getGuestSpace(id_target) {
     try {
-        return db.query('SELECT * FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1',[id_guest]);
+        return db.query('SELECT spaces.title, spaces.id_owner, spaces.description, spaces.created_at, spaces.updated_at FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1',[id_guest]);
     } catch (e) {
         return e.message
     }

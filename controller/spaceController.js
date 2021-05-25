@@ -15,8 +15,19 @@ async function createSpace (req, res, next) {
 
 async function getSpace (req, res, next) {
     try {
-        const id = req.body;
-        const space = await spacesServices.getSpace(id);
+        const user = req.body;
+		const type = req.query.type;
+		
+		switch(type) {
+		case 'me': space = (await spacesServices.getUserSpace(id)).rows;
+		break;
+		case 'shared': space = (await spacesServices.getGuestSpace(id)).rows;
+		break;
+		case 'all':
+		break;
+		}
+		
+        const space = await spacesServices.getSpace(user.id);
         res.json(space.rows[0]);
     } catch (e) {
         console.log(e.message);
