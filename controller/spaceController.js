@@ -6,35 +6,35 @@ async function createSpace (req, res, next) {
     try {
         const {id_owner, title, description} = req.body;
         await spacesServices.create(title, id_owner, description);
-        res.status(201).json('Space created')
+        res.json({"Space is created"})
     } catch (e) {
         console.log(e.message);
         return next(ApiError.badRequest(e.message));
     }
 }
-
 async function getSpace (req, res, next) {
     try {
         const user = req.body;
-		const type = req.query.type;
+		const {type, page, limit} = req.query;
+		page = page || 1;
+		limit = limit || 9;
+		const offset = page * limit - limit;
 		let space = [];
 		switch(type) {
-		case 'me': space = (await spacesServices.getUserSpace(user.id)).rows;
+		case 'me': space = (await spacesServices.getUserSpaces(user.id, limit, offset)).rows;
 		break;
-		case 'shared': space = (await spacesServices.getGuestSpace(user.id)).rows;
+		case 'shared': space = (await spacesServices.getGuestSpaces(user.id, limit, offset)).rows;
 		break;
 		case 'all':
 		break;
 		}
 
-        res.json(space.rows[0]);
+        res.json(space);
     } catch (e) {
         console.log(e.message);
         return next(ApiError.badRequest(e.message));
     }
 }
-
-
 async function getOneSpace (req, res, next) {
     try {
         const id = req.params.id;
@@ -48,17 +48,7 @@ async function getOneSpace (req, res, next) {
 async function getUserSpace (req, res, next) {
     try {
         const id = req.params.id;
-        const space = await spacesServices.getUserSpace(id);
-        res.json(space.rows);
-    } catch (e) {
-        console.log(e.message);
-        return next(ApiError.badRequest(e.message));
-    }
-}
-async function getUserSpace (req, res, next) {
-    try {
-        const {id} = req.body;
-        const space = await spacesServices.getGuestSpace(id);
+        const space = await spacesServices.getUserSpaces(id);
         res.json(space.rows);
     } catch (e) {
         console.log(e.message);

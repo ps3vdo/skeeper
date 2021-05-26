@@ -12,21 +12,18 @@ async function create(title, text, id_spaces, id_owner, label, tags) {
 		return ApiError.badRequest(e.message);
 	}
 }
-async function getAll(limit, page) {
-	page = page || 1;
-	limit = limit || 5;
-	let offset = page * limit - limit;
+async function getAll(limit, offset) {
 	return db.query('SELECT * FROM notes LIMIT $1 OFFSET $2',
 		[limit, offset]);
 }
-async function getAllUserNotes(id, limit, page) {
-	page = page || 1;
-	limit = limit || 5;
-	let offset = page * limit - limit;
+async function getAllUserNotes(id, limit, offset) {
 	return db.query('SELECT * FROM notes WHERE id_owner = $1 LIMIT $2 OFFSET $3',
 		[id, limit, offset]);
 }
-
+async function getAllGuestNotes(id, limit, offset) {
+	return db.query('SELECT * FROM notes WHERE id_owner = $1 LIMIT $2 OFFSET $3',
+		[id, limit, offset]);
+}
 async function update(title, text, label, tags) {
 	return db.query('INSERT INTO notes (title, text, label, tags, updated_at) VALUES ($1, $2, $3, $4, $5)',
 		[title, text, label, tags, currentDate]);

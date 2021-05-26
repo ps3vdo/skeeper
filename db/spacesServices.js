@@ -10,9 +10,9 @@ function create(title = 'new spaces', id_owner, description) {
         return e.message
     }
 }
-function getUserSpace(id_owner) {
+function getUserSpaces(id_owner, limit, offset) {
     try {
-        return db.query('SELECT * FROM spaces where id_owner = $1',[id_owner]);
+        return db.query('SELECT * FROM spaces where id_owner = $1 LIMIT $2 OFFSET $3',[id_owner, limit, offset]);
     } catch (e) {
         return e.message
     }
@@ -24,9 +24,9 @@ function getSpace(id) {
         return e.message
     }
 }
-function getGuestSpace(id_target) {
+function getGuestSpaces (id_target) {
     try {
-        return db.query('SELECT spaces.title, spaces.id_owner, spaces.description, spaces.created_at, spaces.updated_at FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1',[id_guest]);
+        return db.query('SELECT spaces.title, spaces.id_owner, spaces.description, spaces.created_at, spaces.updated_at FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1 LIMIT $2 OFFSET $3',[id_guest, limit, offset]);
     } catch (e) {
         return e.message
     }
