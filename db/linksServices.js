@@ -1,7 +1,6 @@
 const db = require('./db');
 const ApiError = require('../error/ApiError')
 
-
 	const currentDate = new Date();
 	
 	async function create(id_owner, id_guest, id_target) {

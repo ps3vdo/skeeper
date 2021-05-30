@@ -1,4 +1,4 @@
-const {LinksServices} = require('../db/index');
+const {linksServices} = require('../db/index');
 const ApiError = require('../error/ApiError')
 
 class LinksController {
@@ -6,7 +6,7 @@ class LinksController {
 	async create(req, res, next) {
 		try {
 			const {id_owner, id_guest, id_target} = req.body;
-			const newLink = await LinksServices.create(id_owner, id_guest, id_target);
+			const newLink = await linksServices.create(id_owner, id_guest, id_target);
 			res.json(newLink);
 		} catch (e) {
 			console.log(e.message);

@@ -8,11 +8,11 @@ function validate(oneString, twoString) {
         .update(tokenWithOut).digest('hex');
 
 }
-
 const generateAccessToken = function(id, email) {
     const header = {
         "alg": "HS256",
-        "typ": "JWT"
+        "typ": "JWT",
+        "type": "tokenAccess"
     }
     const payload = {
         id,

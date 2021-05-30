@@ -1,21 +1,21 @@
-const db = require('db');
+const db = require('./db');
 const ApiError = require('../error/ApiError');
 
-acync function addToken(token) {
+async function addToken(token) {
 	try {
-		await db.query('INSERT INTO token refresh_token VALUES $1', [token]);
+		await db.query('INSERT INTO token (refresh_token) VALUES ($1)', [token]);
 	} catch(e) {
 		return ApiError.badRequest(e.message)
 	}
 }
-acync function getToken(token) {
+async function getToken(token) {
 	try {
-		return db.query('SELECT * FROM token refresh_token = $1', [token]);
+		return db.query('SELECT * FROM token WHERE refresh_token = $1', [token]);
 	} catch(e) {
 		return ApiError.badRequest(e.message)
 	}
 }
-acync function deleteToken(token) {
+async function deleteToken(token) {
 	try {
 		await db.query('DELETE FROM token WHERE refresh_token = $1', [token]);
 	} catch(e) {

@@ -2,17 +2,17 @@ const db = require('./db');
 
 const currentDate = new Date();
 
-function create(title = 'new spaces', id_owner, description) {
+function create(id, title = 'new spaces', description) {
     try {
-        return db.query('INSERT INTO spaces (title, id_owner, description, created_at, updated_at) values($1, $2, $3, $4, $5)',
-            [title, id_owner, description, currentDate, currentDate]);
+        return db.query('INSERT INTO spaces (title, id_owner, description, created_at) values($1, $2, $3, $4)',
+            [title, id, description, currentDate]);
     } catch (e) {
-        return e.message
+        return e
     }
 }
-function getUserSpace(id_owner) {
+function getUserSpace(id_owner, limit, offset) {
     try {
-        return db.query('SELECT * FROM spaces where id_owner = $1',[id_owner]);
+        return db.query('SELECT * FROM spaces where id_owner = $1 LIMIT $2 OFFSET $3',[id_owner, limit, offset]);
     } catch (e) {
         return e.message
     }
@@ -24,9 +24,16 @@ function getSpace(id) {
         return e.message
     }
 }
-function getGuestSpace(id_target) {
+function getAllSpace(limit, offset) {
     try {
-        return db.query('SELECT spaces.title, spaces.id_owner, spaces.description, spaces.created_at, spaces.updated_at FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces_id WHERE id_guest = $1',[id_guest]);
+        return db.query('SELECT * FROM spaces LIMIT $1 OFFSET $2',[limit, offset]);
+    } catch (e) {
+        return e.message
+    }
+}
+function getGuestSpace(id_guest, limit, offset) {
+    try {
+        return db.query('SELECT * FROM links RIGHT OUTER JOIN spaces ON links.id_target = spaces.id WHERE id_guest = $1 LIMIT $2 OFFSET $3',[id_guest, limit, offset]);
     } catch (e) {
         return e.message
     }
@@ -54,4 +61,4 @@ function deleteSpace(id) {
     }
 }
 
-module.exports = {create, update, deleteSpace, getUserSpace, getSpace, deleteUserSpace};
+module.exports = {create, update, deleteSpace, getAllSpace, getUserSpace, getSpace, deleteUserSpace, getGuestSpace};

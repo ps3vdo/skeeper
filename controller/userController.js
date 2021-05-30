@@ -10,7 +10,9 @@ linksServices, tokenServices} = require('../db/index');
 class UserController {
     async userCreate (req, res, next) {
         try {
-            const {email, password, first_name, last_name} = req.body;
+            const {password, first_name, last_name} = req.body;
+            let {email} = req.body
+            email = email.toLowerCase();
 
             const correctPassword = password
                 .match(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
@@ -26,12 +28,13 @@ class UserController {
 
             const salt = crypto.randomBytes(20).toString('hex');
             const hashPassword = hashingPassword(password, salt);
-            console.log(first_name, last_name)
-            const user = await (usersServices.create(email, hashPassword, salt, first_name, last_name)).rows[0];
-            await spacesServices.create(user.id);
-            const tokenAccess = jwtAccess.generateAccessToken(user.id, email);
-            const tokenRefresh = jwtRefresh.generateRefreshToken(user.id, email);
-			await addToken(tokenRefresh);
+
+            const user = await usersServices.create(email, hashPassword, salt, first_name, last_name);
+            await spacesServices.create(user.rows[0].id);
+            const tokenAccess = jwtAccess.generateAccessToken(user.rows[0].id, email);
+            const tokenRefresh = jwtRefresh.generateRefreshToken(user.rows[0].id, email);
+			await tokenServices.addToken(tokenRefresh);
+            console.log(tokenAccess, tokenRefresh);
             res.json({ tokenAccess, tokenRefresh });
         } catch (e) {
             return next(ApiError.badRequest(e.message));
@@ -66,38 +69,44 @@ class UserController {
     }
     async userAuthorization(req, res, next){
         try {
-            const { email, password } = req.body;
+            let { email, password } = req.body;
+            email = email.toLowerCase();
+            const user = (await usersServices.validate(email)).rows[0];
+            if (!user) {
+                return next(ApiError.badRequest('Invalid email or password!'));
+            }
 
-            const validateEmail = await usersServices.validate(email);
-            if (!validateEmail) {
+            if (hashingPassword(password, user.salt) !== user.hash_password) {
                 return next(ApiError.badRequest('Invalid email or password'));
             }
 
-            const { salt, hash_password, id } = usersServices.validate(email);
-
-            if (hashingPassword(password, salt) !== hash_password) {
-                return next(ApiError.badRequest('Invalid email or password'));
-            }
-            const tokenAccess = jwtAccess.generateAccessToken(id, email);
-            const tokenRefresh = jwtRefresh.generateRefreshToken(id, email);
+            const tokenAccess = jwtAccess.generateAccessToken(user.id, email);
+            const tokenRefresh = jwtRefresh.generateRefreshToken(user.id, email);
+            await tokenServices.deleteToken(tokenRefresh);
+            await tokenServices.addToken(tokenRefresh);
             return res.json({ tokenAccess, tokenRefresh });
         } catch (e) {
             console.log(e)
             return next(ApiError.badRequest(e.message));
         }
     }
-    async checkTokenRefresh(req, res) {
-        let tokenRefresh =  req.headers.authorization;//не уверен в правильности получения
-			
-		const validateToken = (await tokenServices.getToken(token)).rowsCount;
-		if (!validateToken) return next(ApiError.badRequest('Re-authorization required'));
-		
-		const user = jwtRefresh.verifyRefreshToken(tokenRefresh);
-        const tokenAccess = jwtAccess.generateAccessToken(user.id, user.email);
-        tokenRefresh = jwtRefresh.generateRefreshToken(user.id, user.email);
-		await deleteToken(token);
-		await addToken(tokenRefresh);
-        res.json({ tokenAccess,tokenRefresh });
+    async checkTokenRefresh(req, res, next) {
+        try {
+            let tokenRefresh = req.headers.authorization;//не уверен в правильности получения
+            tokenRefresh = tokenRefresh.split(' ')[1];
+            const validateToken = await tokenServices.getToken(tokenRefresh);
+            if (!validateToken.rowCount) return next(ApiError.badRequest('Re-authorization required'));
+            console.log("tut")
+            const user = jwtRefresh.verifyRefreshToken(tokenRefresh);
+            const tokenAccess = jwtAccess.generateAccessToken(user.id, user.email);
+            await tokenServices.deleteToken(tokenRefresh);
+            tokenRefresh = jwtRefresh.generateRefreshToken(user.id, user.email);
+            await tokenServices.addToken(tokenRefresh);
+            res.json({tokenAccess, tokenRefresh});
+        } catch (e) {
+            console.log(e)
+            return next(ApiError.badRequest(e.message));
+        }
     }
     async userDelete(req, res, next) {
         try {
