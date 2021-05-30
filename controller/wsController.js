@@ -1,21 +1,26 @@
 const jwtAccess = require('../function/tokenAccess');
 
 function connectionHandler(ws, token) {
-    if (!token) ws.close('disconnect');
-    const user = jwtAccess.verifyAccessToken(token);
-    return user //id,email
-}
-function connectionSpace(ws, msg) {
-    if (msg.space === 0) {
-        ws.send(msg)
+    try {
+        if (!token) {
+            ws.send(JSON.stringify({
+                type: "error",
+                payload: {message: "Not authorized"},
+            }))
+            ws.close();
+        }
+        const user = jwtAccess.verifyAccessToken(token);
+        return user //id,email
+    } catch (e) {
+        ws.send(JSON.stringify(e.message));
+        console.log(e.message)
     }
-
 }
-const rooms = [];
-const users = [];
+
+const rooms = {};
+const users = {};
 
 function connection(ws) {
-
 
     ws.on('message', (data) => {
         if (!data) return;
@@ -28,31 +33,57 @@ function connection(ws) {
             }));
         }
 
-
         switch (data.type) {
             case "connect":
-                const {payload:{token, roomId}} = data
+                const {payload:{token}} = data;
                 const user = connectionHandler(ws, token);
-                rooms.push(user);
+                users[user.id] = user;
                 break;
+            case "subscribe": {
+                const {payload: {roomId, userId}} = data;
 
-            case "message":
-                connectionSpace(ws, data);
+                if (!users[userId]) {
+                    ws.send(JSON.stringify({
+                        type: "error",
+                        payload: {message: "Not authorized"},
+                    }));
+                    ws.close();
+                    return;
+                }
+                if (!rooms[roomId]) rooms[roomId] = [];
+                rooms[roomId].push(ws);
+                break;
+            }
+            case "message": {
+                const { payload: { message, roomId }} = data;
 
+                if (!rooms[roomId]) {
+                    ws.send(JSON.stringify({
+                        type: "error",
+                        payload: { message: "not found rooms" },
+                    }));
+                    return;
+                }
+
+                rooms[roomId].forEach(item => {
+                    item.send(message);
+                });
+            }
+                break;
+            default:
+                break;
         }
-        console.log(data);
     });
-    ws.send('');
 };
 module.exports = connection;
-///отправка из клиента
-// socket.send(JSON.stringify({
-//     ty"pe: "connection",
-//     "payload": {
-//         "message": "Hello",
-//         id: 2,
-//         "username": "Qwerty",
-//         "space": "2"
-//     }
+/*отправка из клиента
+socket.send(JSON.stringify({
+    "type": "connect",
+    "payload": {
+        "message": "Hello",
+        userId: 2,
+        "username": "Qwerty",
+        "space": "2"
+    }
 //
-// }));
+// }));*/

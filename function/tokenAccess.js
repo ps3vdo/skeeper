@@ -30,6 +30,7 @@ const verifyAccessToken = function(token) {
     const decryptString = Buffer.from(twoString, "base64").toString()
     const decoded = JSON.parse(decryptString);
     const treeString = validate(oneString, twoString);
+
     if (treeString !== verify) return apiError.forbidden("You don't have access");
     if (decoded.expires_at < Date.now()) return apiError.forbidden("Re-authorization required");
     return decoded;

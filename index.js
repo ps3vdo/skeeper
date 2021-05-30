@@ -14,7 +14,7 @@ const wss = new WebSocket.Server({ port: wsPort });
 
 wss.on('connection', connection);
 wss.on('disconnection', (()=> {
-    console.log('disconnect');
+    console.log('close');
 }));
 
 app.use(express.json());
