@@ -1,12 +1,12 @@
-const {linksServices} = require('../db/index');
+const {linksSpacesServices} = require('../db/index');
 const ApiError = require('../error/ApiError')
 
-class LinksController {
+class LinksSpacesController {
 	
 	async create(req, res, next) {
 		try {
 			const {id_owner, id_guest, id_target} = req.body;
-			const newLink = await linksServices.create(id_owner, id_guest, id_target);
+			const newLink = await linksSpacesServices.create(id_owner, id_guest, id_target);
 			res.json(newLink);
 		} catch (e) {
 			console.log(e.message);
@@ -16,7 +16,7 @@ class LinksController {
 	async getOne(req, res, next) {
 		try {
 			const id = req.params.id;
-			const link = await LinksServices.getOneLink(id);
+			const link = await linksSpacesServices.getOneLink(id);
 			res.json(link.rows[0]);
 		} catch (e) {
 			console.log(e.message);
@@ -26,7 +26,7 @@ class LinksController {
 	async getAll(req, res, next) {
 		try {
 			const {page, limit} = req.params;
-			const newLink = await LinksServices.getAll(page, limit);
+			const newLink = await linksSpacesServices.getAll(page, limit);
 			res.json(newLink.rows);
 		} catch (e) {
 			console.log(e.message);
@@ -37,7 +37,7 @@ class LinksController {
 	async delete(req, res, next) {
 		try {
 			const id = req.params.id;
-			const DeletedLink = await LinksServices.deleted(id);
+			const DeletedLink = await linksSpacesServices.deleted(id);
 			res.json(DeletedLink);
 		} catch (e) {
 			console.log(e.message);
@@ -45,4 +45,4 @@ class LinksController {
 		}
 	}
 }
-module.exports = new LinksController();
+module.exports = new LinksSpacesController();

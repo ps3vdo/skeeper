@@ -21,6 +21,7 @@ const rooms = {};
 const users = {};
 
 function connection(ws) {
+ ws.close(1005, 'good buy!');
 
     ws.on('message', (data) => {
         if (!data) return;
@@ -38,6 +39,7 @@ function connection(ws) {
                 const {payload:{token}} = data;
                 const user = connectionHandler(ws, token);
                 users[user.id] = user;
+                ws.userID = user.id;
                 break;
             case "subscribe": {
                 const {payload: {roomId, userId}} = data;
@@ -64,8 +66,8 @@ function connection(ws) {
                     }));
                     return;
                 }
-
                 rooms[roomId].forEach(item => {
+
                     item.send(message);
                 });
             }
@@ -83,7 +85,7 @@ socket.send(JSON.stringify({
         "message": "Hello",
         userId: 2,
         "username": "Qwerty",
-        "space": "2"
+        "room": "2"
     }
 //
 // }));*/

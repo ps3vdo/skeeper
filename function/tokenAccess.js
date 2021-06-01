@@ -31,9 +31,11 @@ const verifyAccessToken = function(token) {
     const decoded = JSON.parse(decryptString);
     const treeString = validate(oneString, twoString);
 
-    if (treeString !== verify) return apiError.forbidden("You don't have access");
-    if (decoded.expires_at < Date.now()) return apiError.forbidden("Re-authorization required");
+    if (treeString !== verify) throw apiError.forbidden("You don't have access");
+    if (decoded.expires_at < Date.now()) throw apiError.forbidden("Re-authorization required");
     return decoded;
 }
 
 module.exports = {generateAccessToken, verifyAccessToken};
+const v = " "
+const b = v.replace("WUB", " ", )

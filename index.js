@@ -13,9 +13,6 @@ const wsPort = config.WS_PORT;
 const wss = new WebSocket.Server({ port: wsPort });
 
 wss.on('connection', connection);
-wss.on('disconnection', (()=> {
-    console.log('close');
-}));
 
 app.use(express.json());
 app.use("/api", routes);
